@@ -7,7 +7,7 @@ from multiprocessing import Pool
 def worker(fn):
 
     t_start = time.time()
-    print("开始执行,进程号为%d" % (os.getpid()))
+    print("starting pid: %d" % (os.getpid()))
 
     all_hist = []
     all_sift = []
@@ -29,7 +29,7 @@ def worker(fn):
                 hists = np.concatenate(hists).reshape(-1)
 
                 sift = cv2.xfeatures2d.SIFT_create()
-                kp, des = sift.detectAndCompute(img, None)   #des是描述子
+                kp, des = sift.detectAndCompute(img, None)   #des
                 des = des.reshape(-1)[:sift_dim]
                 if len(des)<sift_dim:
                     des = np.pad(des, (0,sift_dim-len(des)))
@@ -46,20 +46,20 @@ def worker(fn):
     all_sift  = np.stack(all_sift, axis=0)
     all_label = np.array(all_label)
 
-    np.save('/opt/data1/dyw/GrainSet/features/' + fn.replace('.txt','_hist.npy'), all_hist)
-    np.save('/opt/data1/dyw/GrainSet/features/' + fn.replace('.txt','_sift.npy'), all_sift)
-    np.save('/opt/data1/dyw/GrainSet/features/' + fn.replace('.txt','_label.npy'), all_label)
+    np.save('./GrainSet/features/' + fn.replace('.txt','_hist.npy'), all_hist)
+    np.save('./GrainSet/features/' + fn.replace('.txt','_sift.npy'), all_sift)
+    np.save('./GrainSet/features/' + fn.replace('.txt','_label.npy'), all_label)
 
     print(f'{fn} was done!')
 
     t_stop = time.time()
-    print(os.getpid(), "执行完毕，耗时%0.2f" % (t_stop-t_start))
+    print(os.getpid(), "finish，time: %0.2f" % (t_stop-t_start))
 
 
 if __name__ == "__main__":
 
     sift_dim = 50*128
-    data_root = '/opt/data1/dyw/GrainSet'
+    data_root = './GrainSet'
     txt_root = 'runs/datalist'
     all_fns = os.listdir(txt_root)
     nw = len(all_fns)
