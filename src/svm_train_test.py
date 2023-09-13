@@ -42,9 +42,9 @@ def worker(args):
 
 if __name__ == "__main__":
 
-    root = '/opt/data1/dyw/GrainSet/features'
+    root = './GrainSet/features'
 
-    xx = [el.replace('svm_','').replace('.txt','.npy') for el in os.listdir('/home/dyw/code/Grainset/results/svm')]
+    xx = [el.replace('svm_','').replace('.txt','.npy') for el in os.listdir('./Grainset/results/svm')]
 
     all_fns = []
     for task in ['hist', 'sift']:
