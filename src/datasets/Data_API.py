@@ -26,7 +26,7 @@ class RandomDataset(Dataset):
         self.transform = transform
         self.dataloader = dataloader
 
-        with open('test.txt', 'r') as fid:
+        with open('/home/fdd/dataset/yes20201011/test.txt', 'r') as fid:
             self.imglist = fid.readlines()
 
     def __getitem__(self, index):

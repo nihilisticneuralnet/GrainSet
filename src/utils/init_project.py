@@ -27,9 +27,9 @@ __all__ = ["init_everything"]
 def init_everything():
     # init logging file
     
-    save_dir = cfg.LOG_PATH if cfg.PHASE == 'train' else None
+    save_dir = cfg.LOG_PATH
     setup_logger("CLS", save_dir, get_rank(), 
-        filename='{}_{}_{}_{}_log.txt'.format( cfg.AUTHOR,cfg.DATASET.NAME, cfg.TIME_STAMP,cfg.MODEL.NAME))
+        filename='{}_{}_{}_{}_{}_log.txt'.format( cfg.AUTHOR,cfg.DATASET.NAME, cfg.TIME_STAMP,cfg.MODEL.NAME, cfg.PHASE))
     
     seed_all_rng(seed = cfg.SEED)
     mkdir()

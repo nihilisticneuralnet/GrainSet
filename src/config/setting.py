@@ -23,7 +23,7 @@ cfg.EVAL_RESULT = "./runs/eval_result/"    #path to save onnx file
 
 ################## dataset config ######################
 cfg.DATASET.NAME = 'wheat6'   # dataset name 
-cfg.DATASET.PATH = './' # path to dataset
+cfg.DATASET.PATH = '/home/fdd/dataset/black_normal/black_black/' # path to dataset
 cfg.DATASET.CLASS_NUMS = 8  # 
 cfg.DATASET.SPILT_ONLINE = False  # split dataset to train and val online or offline
 cfg.DATASET.SPILT_RATE = 0.1
@@ -44,7 +44,7 @@ cfg.AUGMENT.RandContra_ratio = 0.3
 
 
 cfg.RESUME.FLAG = False
-cfg.RESUME.PATH = ''
+cfg.RESUME.PATH = '/home/dyw/code/uwseg_normal_maskcls/runs/checkpoints/dyw_channel6_2020-12-09-09-38_laodanet6/best_25_99.32853.pth'
 
 cfg.MODEL.NAME = 'laodanet3128'
 cfg.MODEL.RESUME_PATH = ''
@@ -104,8 +104,8 @@ cfg.TEST.INTERP = 2
 
 
 
-cfg.EVAL.MODEL_ZOO = ''
-cfg.EVAL.BASELINE_DATA = ''
+cfg.EVAL.MODEL_ZOO = '/home/dyw/code/uwseg_normal_maskcls/runs/checkpoints/dyw_channel6_2020-12-24-10-56_resnet50'
+cfg.EVAL.BASELINE_DATA = '/home/dyw/data/jml'
 cfg.EVAL.TEST_IMGS_PATH = None
 
 

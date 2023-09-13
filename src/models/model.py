@@ -3,33 +3,23 @@ import logging
 import torch
 
 from collections import OrderedDict
-
-# from config import cfg
-
-from .backbones.senet.se_resnet import se_resnet20, se_resnet18,se_resnet50
-from .backbones.efficientnet import EfficientNetB0
-# from torchvision.models.resnet import resnet18,resnet50,resnet34
-from .backbones.channel_distillation import ChannelDistillModel
-from .backbones.resnet import resnet18,resnet34,resnet50
+from .backbones.resnet import seresnet50
+from timm.models import vgg19, inception_v3, vit_base_patch16_224
+from timm.models.resnet import resnet50, resnet152
 
 __all__ = ['get_model','load_pretrain_model']
 
-
 models = {
-    'resnet18':resnet18,
-    'resnet34':resnet34,
+    'seresnet50':seresnet50,
+    'vgg19':vgg19,
+    'inception_v3':inception_v3,
+    'vit_base':vit_base_patch16_224,
     'resnet50':resnet50,
-    'se_resnet20':se_resnet20,
-    'se_resnet18':se_resnet18,
-    'se_resnet50':se_resnet50,
-    'efficient_b0':EfficientNetB0,
-
+    'resnet152':resnet152
 }
 
 
 def get_model(cfg, **kwargs):
-  if cfg.KD.USE_KD:
-    return ChannelDistillModel(cfg)
   model_name = cfg.MODEL.NAME.lower()
   assert model_name in models, "model: {} is not supported, please check model name...".format(cfg.MODEL.NAME)
   model = models[model_name.lower()](**kwargs)

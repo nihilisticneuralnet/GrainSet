@@ -9,9 +9,6 @@ from progress.bar import Bar
 
 import torch
 import torch.optim
-from torch.utils.data import sampler
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 
 from utils.init_project import init_everything
 from utils.filesystem import save_checkpoint
@@ -25,22 +22,18 @@ from datasets.augment import get_transforms, mixup_data
 
 from solver import get_optimizer, get_lr_scheduler, get_loss, get_current_lr, update_lr, mixup_criterion
 from config import cfg
-from utils.util import adjust_loss_alpha
-from solver import losses
 import torch.nn as nn
-# os.environ['CUDA_VISIBLE_DEVICES']='3,4'
 
 best_acc = 0
 best_loss = 100
-
 
 def main(args):
     global best_acc
     global best_loss
     init_everything()
     
-    train_imgs = get_imglists( cfg.DATASET.PATH, split="train")
-    val_imgs = get_imglists(cfg.DATASET.PATH, split="val")
+    train_imgs = get_imglists( root=cfg.DATASET.PATH, split="train", phase=cfg.PHASE)
+    val_imgs = get_imglists(root=cfg.DATASET.PATH, split="val", phase=cfg.PHASE)
 
     train_transform, val_transform = get_transforms(RandBright_limit=0.2, RandBright_ratio=0.5, RandContra_limit=0.2, RandContra_ratio=0.5)
     train_dataset = GrainDataset(train_imgs, mode='train', transforms=train_transform)
@@ -54,7 +47,6 @@ def main(args):
                                              num_workers=cfg.DATASET.WORKERS, pin_memory=True, drop_last=True)
     #############  model config  #############
     model = get_model(cfg, num_classes=cfg.DATASET.CLASS_NUMS)
-    # logging.info('model{} architecture: {}\n\n\n'.format(cfg.MODEL.NAME, model))
 
     print('MODEL RESUME PATH:',cfg.MODEL.RESUME_PATH)
     model = model.to(device=device)
@@ -112,34 +104,21 @@ def train(model, train_loader, criterion, optimizer, epoch):
 
     bar = Bar('Training: ', max=len(train_loader))
 
-    if cfg.AUGMENT.MIXUP_RATIO>0:
-        print('------- using mixup---------MIXUP_RATIO:',cfg.AUGMENT.MIXUP_RATIO)
-
     for batch_idx, (inputs, targets, _) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
-        # MixUp
         inputs, targets = inputs.to(device=device), targets.to(device=device)
-        alpha=-1
-        
-        if random.random()<cfg.AUGMENT.MIXUP_RATIO:
-            alpha=1
-        inputs, targets_a, targets_b, lam = mixup_data(inputs, targets, alpha)
-        inputs, targets_a, targets_b = map(torch.autograd.Variable, (inputs,targets_a, targets_b))
-
-        loss = 0
+        # compute output
         outputs = model(inputs)
-        loss = mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
+        loss = criterion(outputs, targets)
 
         # measure accuracy and record loss
         prec1, prec2 = accuracy(outputs.data, targets.data, topk=(1, 2))
-        # f1 = f1_score(outputs.data.argmax(-1).float(), targets.data.float())
 
         losses.update(loss.item(), inputs.size(0))
         top1.update(prec1.item(), inputs.size(0))
         top2.update(prec2.item(), inputs.size(0))
-        # f1_avg.update(f1.item(), inputs.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -205,7 +184,6 @@ def validate(model, val_loader, criterion, epoch):
 
             # measure accuracy and record loss
             prec1, prec2 = accuracy(outputs.data, targets.data, topk=(1, 2))
-            # f1 = f1_score(outputs.data.argmax(-1).float(), targets.data.float())
 
             losses.update(loss.item(), inputs.size(0))
             top1.update(prec1.item(), inputs.size(0))
@@ -241,6 +219,18 @@ if __name__ == "__main__":
     cfg.update_from_file(args.config_file)
     cfg.update_from_list(args.opts)
     cfg.PHASE = 'train'
+
+    if args.model_name:
+        cfg.MODEL.NAME = args.model_name
+
+    if args.save_name:
+        cfg.DATASET.NAME = args.save_name
+
+    if args.data_path:
+        cfg.DATASET.PATH = args.data_path
+
+    if args.phase:
+        cfg.PHASE = args.phase
 
     device = torch.device("cuda")
     main(args)

@@ -33,6 +33,7 @@ def save_checkpoint(model, epoch, optimizer=None, lr_scheduler=None, is_best=Fal
     
     
     if is_best:
+        # fdd save way
         best_file_name = ('best_{}_{:.5f}.pth'.format(epoch, best_acc))
         best_filename = os.path.join(directory, best_file_name)
         torch.save(model, best_filename)

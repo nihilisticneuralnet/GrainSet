@@ -58,7 +58,7 @@ def swin_reshape_transform(tensor, height=7, width=7):
     result = result.transpose(2, 3).transpose(1, 2)
     return result
 
-def test(valloader, model, model_name, criterion, grain_t='wheat', gen_cam=False):
+def test(valloader, model, model_name, criterion, save_name='wheat', gen_cam=False):
     
     # switch to evaluate mode
     model.eval()
@@ -107,7 +107,7 @@ def test(valloader, model, model_name, criterion, grain_t='wheat', gen_cam=False
                 fori_img = np.float32(ori_img) / 255
                 visualization = show_cam_on_image(fori_img, grayscale_cam)
                 visualization = np.concatenate((visualization,ori_img),axis=1)
-                dir = f'./results/{grain_t}_cam/' + str(targets[ix].item()) + '/'
+                dir = f'./results/{save_name}_cam/' + str(targets[ix].item()) + '/'
                 os.makedirs(dir, exist_ok=True)
                 cv2.imwrite(dir + filenames[ix].split('/')[-1],visualization)
 
@@ -144,7 +144,7 @@ def test(valloader, model, model_name, criterion, grain_t='wheat', gen_cam=False
     embeds = np.vstack(embeds)
     all_label = np.hstack(all_label)
     files = np.hstack(files).tolist()
-    with open(f'./results/{grain_t}_prob.txt','w+') as f:
+    with open(f'./results/{save_name}_prob.txt','w+') as f:
         for emb, label, file_name in zip(embeds, all_label, files):
             file_name = '/'.join(file_name.split('/')[-2:])
             line = file_name + ' ' + str(label) + ' ' + ' '.join(list(map(str, emb))) + '\n'
@@ -154,16 +154,24 @@ def test(valloader, model, model_name, criterion, grain_t='wheat', gen_cam=False
 
 
 model_name = 'resnet50'
-model_paths = ['runs/checkpoints/maize_best.pth',
-               'runs/checkpoints/rice_best.pth',
-               'runs/checkpoints/sorg_best.pth',
-               'runs/checkpoints/wheat_best.pth'
-               ]
+# model_paths = ['runs/checkpoints/maize_best.pth',
+#                'runs/checkpoints/rice_best.pth',
+#                'runs/checkpoints/sorg_best.pth',
+#                'runs/checkpoints/wheat_best.pth'
+#                ]
+
+model_paths = ['/home/dyw/code/Grainset/runs/checkpoints/dyw_vit_wheat_imbal_2023-09-08-00-05_vit_base/best_25.pth',
+               '/home/dyw/code/Grainset/runs/checkpoints/dyw_vit_sorg_imbal_2023-09-08-07-15_vit_base/best_25.pth']
+# ckpt_root = '/home/dyw/code/Grainset/runs/checkpoints'
+# for dirname in os.listdir(ckpt_root):
+#     fn = sorted(os.listdir(os.path.join(ckpt_root, dirname)))[-1]
+#     model_paths.append(os.path.join(ckpt_root, dirname, fn))
 
 
 for model_path in model_paths:
-    grain_t = model_path.split('/')[-1].split('_')[0]
-    DATASET_PATH = f'./FinalData/{grain_t}'
+    grain_t = model_path.split('/')[-2].split('_')[2]
+    DATASET_PATH = f'/opt/data1/dyw/GrainSet/{grain_t}'
+    save_name = '_'.join(model_path.split('/')[-2].split('_')[1:4])
     model = torch.load(model_path)
     print('Load path from :',model_path)
     model = model.module
@@ -172,4 +180,4 @@ for model_path in model_paths:
     test_imgs = get_imglists(DATASET_PATH, split="test")
     test_labeled_dataset = GrainDataset(test_imgs, mode='train', transforms=val_transform)
     labeled_trainloader = data.DataLoader(test_labeled_dataset, batch_size=16, shuffle=True, num_workers=4, drop_last=False)
-    test(labeled_trainloader, model, model_name, loss, grain_t, gen_cam=False)
+    test(labeled_trainloader, model, model_name, loss, save_name, gen_cam=False)
