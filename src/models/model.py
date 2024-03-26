@@ -22,6 +22,10 @@ models = {
     
 }
 
+num_features = model.classifier.in_features
+model.classifier = nn.Linear(num_features, len(classes))
+
+model = model.to(device)
 
 def get_model(cfg, **kwargs):
   model_name = cfg.MODEL.NAME.lower()
