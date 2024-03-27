@@ -12,12 +12,12 @@ __all__ = ['get_model','load_pretrain_model']
 efficientnet_b0=timm.create_model('efficientnet_b0', pretrained=True)
 
 models = {
-    # 'seresnet50':seresnet50,
-    # 'vgg19':vgg19,
-    # 'inception_v3':inception_v3,
-    # 'vit_base':vit_base_patch16_224,
-    # 'resnet50':resnet50,
-    # 'resnet152':resnet152,
+    'seresnet50':seresnet50,
+    'vgg19':vgg19,
+    'inception_v3':inception_v3,
+    'vit_base':vit_base_patch16_224,
+    'resnet50':resnet50,
+    'resnet152':resnet152,
     'efficientnet_b0':efficientnet_b0
     
 }
